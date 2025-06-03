@@ -1,11 +1,12 @@
-import gleam/erlang/os
 import gleam/http.{Post}
 import gleam/json
 import gleam/list
-import gleam/result
 import gleeunit/should
 import plunk/instance.{Instance}
 import plunk/internal/bridge
+
+// Gleam erlang dropped the "os.get_env" function, so define it here
+const key = ""
 
 pub fn normalize_path_test() {
   "/foo/bar/baz"
@@ -26,10 +27,6 @@ pub fn normalize_path_test() {
 }
 
 pub fn make_request_test() {
-  let key =
-    os.get_env("PLUNK_API_KEY")
-    |> result.unwrap("")
-
   let body =
     json.object([#("name", json.string("John Doe"))])
     |> json.to_string

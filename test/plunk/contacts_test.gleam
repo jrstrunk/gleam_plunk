@@ -1,14 +1,16 @@
 import gleam/bool
-import gleam/erlang/os
 import gleam/hackney
 import gleam/int
 import gleam/io
 import gleam/list
 import gleam/option.{Some}
-import gleam/result
+import gleam/string
 import gleeunit/should
 import plunk
 import plunk/contacts
+
+// Gleam erlang dropped the "os.get_env" function, so define it here
+const key = ""
 
 fn generate() {
   generate_("", 16)
@@ -22,10 +24,6 @@ fn generate_(state: String, len: Int) {
 }
 
 pub fn get_test() {
-  let key =
-    os.get_env("PLUNK_API_KEY")
-    |> result.unwrap("")
-
   should.not_equal(key, "")
 
   let raw_resp =
@@ -42,7 +40,7 @@ pub fn get_test() {
 
   case data {
     contacts.GetContactResult(contact) -> {
-      io.debug("ID -> " <> contact.id)
+      io.println_error("ID -> " <> contact.id)
       Nil
     }
     _ -> should.fail()
@@ -50,10 +48,6 @@ pub fn get_test() {
 }
 
 pub fn list_test() {
-  let key =
-    os.get_env("PLUNK_API_KEY")
-    |> result.unwrap("")
-
   should.not_equal(key, "")
 
   let raw_resp =
@@ -70,12 +64,12 @@ pub fn list_test() {
 
   case data {
     contacts.ListContactsResult(contacts) -> {
-      io.debug("-----------------")
-      io.debug("List all contacts")
-      let print = fn(contact: contacts.Contact) { io.debug(contact.id) }
+      io.println_error("-----------------")
+      io.println_error("List all contacts")
+      let print = fn(contact: contacts.Contact) { io.println_error(contact.id) }
       contacts
       |> list.map(print)
-      io.debug("-----------------")
+      io.println_error("-----------------")
       Nil
     }
     _ -> should.fail()
@@ -83,10 +77,6 @@ pub fn list_test() {
 }
 
 pub fn count_test() {
-  let key =
-    os.get_env("PLUNK_API_KEY")
-    |> result.unwrap("")
-
   should.not_equal(key, "")
 
   let raw_resp =
@@ -103,7 +93,7 @@ pub fn count_test() {
 
   case data {
     contacts.CountContactsResult(c) -> {
-      io.debug(
+      io.println_error(
         "Got "
         <> int.to_string(c.count)
         <> " contact"
@@ -119,10 +109,6 @@ pub fn count_test() {
 }
 
 pub fn create_test() {
-  let key =
-    os.get_env("PLUNK_API_KEY")
-    |> result.unwrap("")
-
   should.not_equal(key, "")
 
   let raw_resp =
@@ -143,7 +129,7 @@ pub fn create_test() {
 
   case data {
     contacts.CreateContactResult(contact) -> {
-      io.debug(contact)
+      io.println_error(contact |> string.inspect)
       should.be_true(contact.success)
       Nil
     }
@@ -155,10 +141,6 @@ pub fn create_test() {
 fn setup_new_contact(
   subscribed subscribed: Bool,
 ) -> #(String, contacts.CreatedContact) {
-  let key =
-    os.get_env("PLUNK_API_KEY")
-    |> result.unwrap("")
-
   should.not_equal(key, "")
 
   let id = generate()
@@ -200,7 +182,7 @@ pub fn subscribe_test() {
 
   case data {
     contacts.SubscriptionResult(sub) -> {
-      io.debug(
+      io.println_error(
         "["
         <> contact.email
         <> " - SUBSCRIBED]"
@@ -235,7 +217,7 @@ pub fn unsubscribe_test() {
 
   case data {
     contacts.SubscriptionResult(sub) -> {
-      io.debug(
+      io.println_error(
         "["
         <> contact.email
         <> " - UNSUBSCRIBED]"
@@ -269,7 +251,7 @@ pub fn delete_test() {
 
   case data {
     contacts.DeleteContactResult(d) -> {
-      io.debug("Deleted contact (" <> d.email <> ")")
+      io.println_error("Deleted contact (" <> d.email <> ")")
       should.be_true(d.success)
       Nil
     }

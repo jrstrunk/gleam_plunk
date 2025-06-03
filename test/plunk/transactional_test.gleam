@@ -1,17 +1,15 @@
-import gleam/erlang/os
 import gleam/hackney
 import gleam/io
 import gleam/option.{None, Some}
-import gleam/result
+import gleam/string
 import gleeunit/should
 import plunk
 import plunk/transactional.{Address, TransactionalEmail}
 
-pub fn send_test() {
-  let key =
-    os.get_env("PLUNK_API_KEY")
-    |> result.unwrap("")
+// Gleam erlang dropped the "os.get_env" function, so define it here
+const key = ""
 
+pub fn send_test() {
   should.not_equal(key, "")
 
   let req =
@@ -30,11 +28,11 @@ pub fn send_test() {
       should.be_ok(d)
       let assert Ok(data) = d
       should.equal(data.success, True)
-      io.debug(data)
+      io.println_error(data |> string.inspect)
       Nil
     }
     Error(e) -> {
-      io.debug(e)
+      io.println_error(e |> string.inspect)
       should.fail()
     }
   }
